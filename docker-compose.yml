@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres_user
+      - POSTGRES_PASSWORD=postgres_password
+      - POSTGRES_DB=labs_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker/postgresql/data:/var/lib/postgresql/data
