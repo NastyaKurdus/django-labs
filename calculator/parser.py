@@ -21,7 +21,9 @@ standard_expr_grammar = r"""
         | "exp" "(" expr ")" -> exp
         | "!" expr -> fact
         | NUMBER -> number
+        | NAME -> variable
 
+%import common.CNAME -> NAME
 %import common.SIGNED_NUMBER -> NUMBER
 %import common.WS
 %ignore WS
@@ -37,18 +39,33 @@ expr: "convert" "(" num "," base ")" -> convert
       | OCT -> oct
       | DEC -> dec
       | HEX -> hex
+      | NAME -> variable
 
 BIN: /0b[01]+/
 OCT: /0o[0-7]+/ 
 DEC: /[1-9][0-9]*/
 HEX: /0x[0-9A-Fa-f]+/
 
+%import common.CNAME -> NAME
 %import common.WS
 %ignore WS
 """
 
 
-class StandardExprTransformer(Transformer):
+class CalculatorTransformerMixin(Transformer):
+    def __init__(self, variables):
+        super().__init__()
+        self.variables = variables
+
+    def variable(self, args):
+        name = args[0]
+        try:
+            return self.variables[name]
+        except KeyError:
+            raise Exception("Variable not found: %s" % name)
+
+
+class StandardExprTransformer(CalculatorTransformerMixin):
     @staticmethod
     def add(args):
         return args[0] + args[1]
@@ -106,7 +123,7 @@ class StandardExprTransformer(Transformer):
         return float(args[0])
 
 
-class ProgrammerExprTransformer(Transformer):
+class ProgrammerExprTransformer(CalculatorTransformerMixin):
     @staticmethod
     def convert(args):
         convert_fn = args[1]
@@ -148,24 +165,24 @@ class ProgrammerExprTransformer(Transformer):
     def num(args):
         return args[0]
 
-
-standard_expr_parser = \
-    Lark(standard_expr_grammar, parser='lalr', start='expr', transformer=StandardExprTransformer())
-
-programmer_expr_parser = \
-    Lark(programmer_expr_grammar, parser='lalr', start='expr', transformer=ProgrammerExprTransformer())
+    def variable(self, args):
+        return int(super().variable(args))
 
 
-def evaluate_as_standard_expr(expr):
-    return evaluate_with_error_handling(expr, standard_expr_parser)
+standard_expr_parser = Lark(standard_expr_grammar, parser='lalr', start='expr')
+programmer_expr_parser = Lark(programmer_expr_grammar, parser='lalr', start='expr')
 
 
-def evaluate_as_programmer_expr(expr):
-    return evaluate_with_error_handling(expr, programmer_expr_parser)
+def evaluate_as_standard_expr(expr, variables):
+    return evaluate_with_error_handling(expr, standard_expr_parser, StandardExprTransformer, variables)
 
 
-def evaluate_with_error_handling(expr, parser):
+def evaluate_as_programmer_expr(expr, variables):
+    return evaluate_with_error_handling(expr, programmer_expr_parser, ProgrammerExprTransformer, variables)
+
+
+def evaluate_with_error_handling(expr, parser, transformer, variables):
     try:
-        return parser.parse(expr), None
+        return transformer(variables).transform(parser.parse(expr)), None
     except Exception as e:
         return None, str(e)

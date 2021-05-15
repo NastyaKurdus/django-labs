@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
-from django.db.models import CharField, DateField, EmailField
+from django.contrib.auth import get_user_model
+from django.db.models import Model, CharField, DateField, EmailField, \
+    OneToOneField, IntegerField, DateTimeField, CASCADE
 
 
 class MyUser(AbstractUser):
@@ -15,3 +17,9 @@ class MyUser(AbstractUser):
 
     class Meta:
         ordering = ('username',)
+
+
+class OnlineUser(Model):
+    user = OneToOneField(get_user_model(), on_delete=CASCADE)
+    last_joined = DateTimeField(auto_now=True)
+    connections = IntegerField(default=1)

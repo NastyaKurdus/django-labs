@@ -1,5 +1,5 @@
 from django.utils.timezone import now
-from django.db.models import Model, ForeignKey, DateTimeField, CASCADE, TextField, CharField, BigIntegerField
+from django.db.models import Model, ForeignKey, DateTimeField, CASCADE, TextField, CharField
 from django.contrib.auth import get_user_model
 
 
@@ -29,7 +29,7 @@ class Calculator(CreatedTimeMixin):
 class History(CreatedTimeMixin):
     calculator = ForeignKey(Calculator, on_delete=CASCADE, related_name='history_items')
     expr = TextField()
-    result = BigIntegerField()
+    result = TextField()
 
     def __str__(self):
         return 'History item(created at {} for {}).'.format(self.created_time, self.calculator)

@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer, ValidationError
+from rest_framework.serializers import ModelSerializer, ValidationError, DictField, FloatField
 from .models import Calculator, History
 from .parser import evaluate_as_programmer_expr, evaluate_as_standard_expr
 
@@ -21,9 +21,11 @@ class CalculatorSerializer(ModelSerializer):
 
 
 class HistorySerializer(ModelSerializer):
+    variables = DictField(child=FloatField(), write_only=True, default={})
+
     class Meta:
         model = History
-        fields = ['id', 'calculator', 'expr', 'result']
+        fields = ['id', 'calculator', 'expr', 'result', 'variables']
         read_only_fields = ['result']
 
     def validate_expr(self, value):
@@ -46,6 +48,8 @@ class HistorySerializer(ModelSerializer):
                 raise ValidationError(error)
             else:
                 data['result'] = res
+                # pop variables as it has been used only for result calculation
+                data.pop('variables')
                 return data
         return data
 
@@ -57,7 +61,8 @@ class HistorySerializer(ModelSerializer):
 
 def try_to_evaluate_expr(data):
     mode = data['calculator'].mode
+    variables = data['variables']
     if mode == 'S':
-        return evaluate_as_standard_expr(data['expr'])
+        return evaluate_as_standard_expr(data['expr'], variables)
     elif mode == 'P':
-        return evaluate_as_programmer_expr(data['expr'])
+        return evaluate_as_programmer_expr(data['expr'], variables)

@@ -42,11 +42,15 @@ INSTALLED_APPS = [
     'djoser',
     'django_filters',
     'drf_spectacular',
+    'channels',
+    'channels_redis',
+    'corsheaders',
     'users',
     'calculator',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -56,6 +60,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 ROOT_URLCONF = 'django_labs.urls'
 
 TEMPLATES = [
@@ -160,3 +166,13 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.MyUser'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': ["redis://:django_password@127.0.0.1:6379/"],
+        },
+    },
+}
+ASGI_APPLICATION = 'django_labs.asgi.application'

@@ -724,6 +724,74 @@
 			"response": []
 		},
 		{
+			"name": "Compute standard expr 3",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "Token {{token2}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "Authorization",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"calculator\": {{calc_id3}},\n    \"expr\": \"a+b\",\n    \"variables\": {\"a\": 3, \"b\": 4}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/calculations/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"calculations",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Wrong compute standard expr",
 			"event": [
 				{
@@ -857,6 +925,59 @@
 				"body": {
 					"mode": "raw",
 					"raw": "{\n    \"calculator\": {{calc_id2}},\n    \"expr\": \"convert(0b11001,10)\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/calculations/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"calculations",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Compute programmer expr 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"calculator\": {{calc_id2}},\n    \"expr\": \"convert(a,2)\",\n    \"variables\": {\"a\": 10}\n}",
 					"options": {
 						"raw": {
 							"language": "json"
