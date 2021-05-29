@@ -1,9 +1,12 @@
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, BasePermission
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django_filters.rest_framework import FilterSet, NumberFilter
 from .serializers import CalculatorSerializer, HistorySerializer
 from .models import Calculator, History
 from rest_framework.pagination import PageNumberPagination
+from django.http import HttpResponse
+from .tasks import get_user_info, send_invitations
 
 
 class CalculatorPaginator(PageNumberPagination):
@@ -83,3 +86,21 @@ class HistoryViewSet(BaseModelViewSet):
         if self.request.user.is_superuser:
             return History.objects.all()
         return History.objects.filter(calculator__owner=self.request.user)
+
+
+class InfoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @staticmethod
+    def get(request):
+        task_id = get_user_info.apply_async(queue='info', args=(request.user.username,))
+        return HttpResponse(f'Collecting user info in progress. Task id - {task_id}.')
+
+
+class InvitationEmailsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @staticmethod
+    def post(request):
+        task_id = send_invitations.apply_async(queue='emails', args=(request.user.username, request.data))
+        return HttpResponse(f'Sending emails in progress. Task id - {task_id}.')

@@ -166,13 +166,23 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.MyUser'
-
+REDIS_HOST = 'localhost'
+REDIS_PORT = '6379'
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': ["redis://:django_password@127.0.0.1:6379/"],
-        },
-    },
-}
+     'default': {
+         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+         'CONFIG': {
+           'hosts': ['redis://' + REDIS_HOST + ':' + REDIS_PORT + '/'],
+         },
+     },
+ }
+
+CELERY_BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'calculator.django@gmail.com'
+EMAIL_HOST_PASSWORD = 'celerypassword12345'
 ASGI_APPLICATION = 'django_labs.asgi.application'
