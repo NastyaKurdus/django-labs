@@ -36,13 +36,9 @@ class ConsumerMixin(JsonWebsocketConsumer):
         try:
             if content['type'] == 'data':
                 if self.scope['user'].is_authenticated:
-                    message = content
+                    self.send_message(content)
                 else:
-                    message = {
-                        'type': 'error',
-                        'text': 'No authenticated used is trying to send message.'
-                    }
-                self.send_message(message)
+                    self.send_json({'type': 'error', 'text': 'No authenticated.'})
             elif content['type'] == 'auth' and not self.scope['user'].is_authenticated:
                 current_user = Token.objects.get(key=content['token']).user
                 online_user, created = OnlineUser.objects.get_or_create(user=current_user)
@@ -54,7 +50,7 @@ class ConsumerMixin(JsonWebsocketConsumer):
 
                 self.send_message({'type': 'newConnection', 'username': current_user.username})
         except Exception as e:
-            self.send_json({'type': 'error', 'text': repr(e), 'response': content})
+            self.send_json({'type': 'error', 'text': repr(e)})
 
     def message_handle(self, event):
         self.send_json(event['content'])
